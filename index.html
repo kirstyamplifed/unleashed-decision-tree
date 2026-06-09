@@ -910,11 +910,22 @@
     });
   }
 
+  const programmeDetails = {
+    'Management Unleashed': 'Format: Open cohort — mixed with managers from other businesses\nBest for: First-time and early managers, people leads\nOutcome: Foundational management skills — team performance, difficult conversations, building trust\nEnrolment: Open cohorts run year-round — join when ready',
+    'Leadership Unleashed Open Cohort': 'Format: Open cohort with leaders from different organisations\nBest for: Head of level and above seeking structured development\nOutcome: Stronger leadership presence, strategic thinking, and a peer network\nDelivery: In-person and virtual options across regular cohort dates',
+    'Leadership Unleashed Closed Cohort': 'Format: Private cohort — your leadership team only\nBest for: Leadership teams of 4–20 who need to grow and align together\nOutcome: Shared language, stronger alignment, individual leadership growth\nDelivery: In-person or virtual — we flex to your team\'s needs',
+    '360 Diagnostic': 'Format: Team-wide diagnostic — structured data gathering and insight report\nBest for: Leadership teams of 3+ before any significant development investment\nOutcome: Clear data on leadership effectiveness, strengths, and development priorities\nDelivery: Facilitated process with debrief and action planning',
+    '1:1 Coaching': 'Format: 1:1 sessions with a dedicated coach, fully flexible\nBest for: Leaders with specific, personal challenges to work through\nOutcome: Clarity, confidence, and practical strategies for your exact situation\nFlexibility: Tailored pace and schedule — built entirely around you',
+    'Group Coaching': 'Format: Facilitated group sessions with the leadership team\nBest for: Leadership teams wanting to develop as a collective\nOutcome: Shared insight, collective growth, and stronger team dynamics',
+    'I&D Discovery': 'Format: Diagnostic process across the organisation\nBest for: Organisations at the start of their I&D journey, or wanting a data-led baseline\nOutcome: Clear picture of where you stand, and what to prioritise',
+    'I&D Training': 'Format: Training sessions across teams or the whole organisation\nBest for: Organisations ready to take action on I&D\nOutcome: Behaviour change, greater inclusion, stronger culture',
+    'Bespoke Programme': 'Format: Fully bespoke — workshop, programme, or blended\nBest for: Organisations where context, culture, or challenges require a tailored approach\nProcess: Discover → Design → Deliver',
+  };
+
   async function sendResults(programmeName, nameId, emailId) {
     const name  = document.getElementById(nameId).value.trim();
     const email = document.getElementById(emailId).value.trim();
     const suffix = emailId.replace('email-addr-', '');
-
     if (!name || !email) {
       alert('Please enter your name and email address.');
       return;
@@ -923,7 +934,6 @@
       alert('Please enter a valid email address.');
       return;
     }
-
     // Track email submission to Google Sheet too
     if (SHEET_URL && !SHEET_URL.includes('YOUR_GOOGLE')) {
       fetch(SHEET_URL, {
@@ -938,25 +948,23 @@
         })
       }).catch(() => {});
     }
-
     // Send email via EmailJS
     if (EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.includes('YOUR_EMAILJS')) {
       try {
         await loadEmailJS();
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          to_name:     name,
-          to_email:    email,
-          programme:   programmeName,
-          result_url:  window.location.href,
-          from_name:   'Unleashed'
+          to_name:           name,
+          to_email:          email,
+          programme:         programmeName,
+          programme_details: programmeDetails[programmeName] || '',
+          result_url:        window.location.href,
+          from_name:         'Unleashed'
         });
       } catch(e) { console.warn('EmailJS error:', e); }
     }
-
     // Show success regardless (graceful fallback)
     const successEl = document.getElementById('email-success-' + suffix);
     if (successEl) { successEl.style.display = 'block'; }
-
     // Clear fields
     document.getElementById(nameId).value = '';
     document.getElementById(emailId).value = '';
